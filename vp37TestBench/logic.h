@@ -14,6 +14,8 @@
 #include "peripherials.h"
 #include "draw7Segment.h"
 
+#include "vpTestBenchOperation.h"
+
 void setup_a(void);
 void loop_a(void);
 void setup_b(void);

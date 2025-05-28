@@ -16,8 +16,11 @@
 
 #define MAX_RETRIES 15
 
+//maximum RPM for engine
+#define RPM_MAX_EVER 5000
+
 //in miliseconds, print values into serial
-#define DEBUG_UPDATE 3
+#define DEBUG_UPDATE 2000
 
 #endif
 
