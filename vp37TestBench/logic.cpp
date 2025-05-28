@@ -139,7 +139,9 @@ bool seriousAlertSwitch(void) {
 
 //timer functions
 bool callAtEverySecond(void *arg) {
-  alertBlink = (alertBlink) ? false : true;
+  alertBlink = !alertBlink;
+
+  digitalWrite(LED_BUILTIN, alertBlink);
 
 #if SYSTEM_TEMP
   deb("System temperature: %f", analogReadTemp());
@@ -149,7 +151,7 @@ bool callAtEverySecond(void *arg) {
 }
 
 bool callAtEveryHalfSecond(void *arg) {
-  seriousAlertBlink = (seriousAlertBlink) ? false : true;
+  seriousAlertBlink = !seriousAlertBlink;
 
   return true;
 }
