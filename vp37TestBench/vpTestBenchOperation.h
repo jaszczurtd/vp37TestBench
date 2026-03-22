@@ -2,10 +2,6 @@
 #define VP_TESTBENCH_OPERATION
 
 #include <tools.h>
-#include <arduino-timer.h>
-#include <pidController.h>
-#include <pico.h>
-#include <hardware/timer.h>
 
 #include "config.h"
 #include "logic.h"

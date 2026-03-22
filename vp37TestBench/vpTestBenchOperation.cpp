@@ -26,8 +26,8 @@ void VPTestBenchOperation::process(void) {
 
   if(lastThrottle != thr || desiredAdjustometer < 0) {
     lastThrottle = thr;
-    desiredAdjustometer = map(thr, 0, 100, injectionPump.getMinVP37ThrottleValue(), 
-                                           injectionPump.getMaxVP37ThrottleValue());
+    desiredAdjustometer = (int)mapfloat(thr, 0, 100, injectionPump.getMinVP37ThrottleValue(),
+                                            injectionPump.getMaxVP37ThrottleValue());
 
     injectionPump.setVP37Throttle(desiredAdjustometer);
   }

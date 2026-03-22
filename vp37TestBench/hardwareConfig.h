@@ -18,6 +18,16 @@
 #define TFT_RST    20 //reset
 #define TFT_DC     15 //A0
 
+// RGB565 colour constants
+#define ST77XX_BLACK   0x0000
+#define ST77XX_WHITE   0xFFFF
+#define ST77XX_RED     0xF800
+#define ST77XX_GREEN   0x07E0
+#define ST77XX_BLUE    0x001F
+#define ST77XX_YELLOW  0xFFE0
+#define ST77XX_CYAN    0x07FF
+#define ST77XX_MAGENTA 0xF81F
+
 #define PWM_WRITE_RESOLUTION 11
 #define PWM_RESOLUTION 2047
 

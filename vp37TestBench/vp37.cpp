@@ -13,7 +13,7 @@ void VP37Pump::measureVoltage(void) {
 }
 
 int VP37Pump::getMaxAdjustometerPWMVal(void) {
-  return map(VP37_CALIBRATION_MAX_PERCENTAGE, 0, 100, 0, PWM_RESOLUTION);
+  return (int)mapfloat(VP37_CALIBRATION_MAX_PERCENTAGE, 0, 100, 0, PWM_RESOLUTION);
 }
 
 int VP37Pump::getAdjustometerStable(void) {
@@ -77,18 +77,10 @@ void VP37Pump::init(void) {
   adjustController.setOutputLimits(vp37AdjustMin, vp37AdjustMax);
   adjustController.setTf(VP37_PID_TF);
 
-  vp37MainTimer = timer_create_default();
-  vp37MainTimer.every(VP37_FUEL_TEMP_UPDATE, [](void* ctx) -> bool {
-    auto* pump = static_cast<VP37Pump*>(ctx);
-    pump->measureFuelTemp();
-    return true;
-  }, this);
-
-  vp37MainTimer.every(VP37_VOLTAGE_UPDATE, [](void* ctx) -> bool {
-    auto* pump = static_cast<VP37Pump*>(ctx);
-    pump->measureVoltage();
-    return true;
-  }, this);
+  timerFuelTemp.time(VP37_FUEL_TEMP_UPDATE);
+  timerFuelTemp.restart();
+  timerVoltage.time(VP37_VOLTAGE_UPDATE);
+  timerVoltage.restart();
 
   measureFuelTemp();
   measureVoltage();
@@ -113,29 +105,32 @@ void VP37Pump::makeVP37Calibration(void) {
 }
 
 void VP37Pump::enableVP37(bool enable) {
-
-#warning todo:enableVP37
-
-  deb("vp37 enabled: %d", isVP37Enabled()); 
+  // TODO: implement relay/output control for VP37 enable pin
+  deb("vp37 enabled: %d", isVP37Enabled());
 }
 
 bool VP37Pump::isVP37Enabled(void) {
-
-#warning todo:isVP37Enabled
-
+  // TODO: read VP37 enable pin state
   return false;
 }
 
 void VP37Pump::VP37TickMainTimer(void) {
   if(vp37Initialized) {
-    vp37MainTimer.tick();  
+    if(timerFuelTemp.available()) {
+      measureFuelTemp();
+      timerFuelTemp.restart();
+    }
+    if(timerVoltage.available()) {
+      measureVoltage();
+      timerVoltage.restart();
+    }
   }
 }
 
 void VP37Pump::setInjectionTiming(int angle) {
-  angle = constrain(angle, 0, 100);
-  valToPWM(PIO_VP37_ANGLE, 
-    map(angle, 0, 100, TIMING_PWM_MIN, TIMING_PWM_MAX));
+  angle = hal_constrain(angle, 0, 100);
+  valToPWM(PIO_VP37_ANGLE,
+    (int)mapfloat(angle, 0, 100, TIMING_PWM_MIN, TIMING_PWM_MAX));
 }
 
 void VP37Pump::updateVP37AdjustometerPosition(void) {
@@ -173,7 +168,7 @@ void VP37Pump::process(void) {
     float pidOutput = adjustController.updatePIDcontroller(pidErr);
     float normalized = (pidOutput - vp37AdjustMin) / (vp37AdjustMax - vp37AdjustMin);
     finalPWM = VP37_PWM_MIN + normalized * (VP37_PWM_MAX - VP37_PWM_MIN);
-    finalPWM = constrain(finalPWM, VP37_PWM_MIN, VP37_PWM_MAX);
+    finalPWM = hal_constrain(finalPWM, VP37_PWM_MIN, VP37_PWM_MAX);
 
     if (lastPWMval != finalPWM) {
       lastPWMval = finalPWM;
@@ -187,11 +182,11 @@ void VP37Pump::setVP37Throttle(int accel) {
     derr("Calibration not done!");
     return;
   }
-  accel = constrain(accel, VP37_ACCELERATION_MIN, VP37_ACCELERATION_MAX);
+  accel = hal_constrain(accel, VP37_ACCELERATION_MIN, VP37_ACCELERATION_MAX);
 
-  desiredAdjustometer = map(accel, 
-                            VP37_ACCELERATION_MIN, VP37_ACCELERATION_MAX, 
-                            vp37AdjustMin, vp37AdjustMax);
+  desiredAdjustometer = (int)mapfloat(accel,
+                                      VP37_ACCELERATION_MIN, VP37_ACCELERATION_MAX,
+                                      vp37AdjustMin, vp37AdjustMax);
 }
 
 int VP37Pump::getMinVP37ThrottleValue(void) {

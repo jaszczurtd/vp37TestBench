@@ -3,35 +3,23 @@
 
 const char *err = (char*)F("ERR");
 
-bool callAtEverySecond(void *arg);
-bool callAtEveryHalfSecond(void *arg);
-bool callAtEveryHalfHalfSecond(void *arg);
-bool updateValsForDebug(void *arg);
+static void callAtEverySecond(void);
+static void callAtEveryHalfSecond(void);
+static void callAtEveryHalfHalfSecond(void);
+static void updateValsForDebug(void);
 
 static unsigned long alertsStartSecond = 0;
 static unsigned long lastThreadSeconds = 0;
-static Timer generalTimer;
+
+static SmartTimers timerSecond;
+static SmartTimers timerHalfSecond;
+static SmartTimers timerQuarterSecond;
+static SmartTimers timerDebug;
 
 NOINIT int statusVariable0;
 NOINIT int statusVariable1;
 
 static VPTestBenchOperation benchOperation;
-
-void setupTimerWith(unsigned long time, bool(*function)(void *argument)) {
-  //watchdog_feed();
-  generalTimer.every(time, function);
-  m_delay(CORE_OPERATION_DELAY);
-}
-
-void setupTimers(void) {
-
-  generalTimer = timer_create_default();
-
-  setupTimerWith(SECOND, callAtEverySecond);
-  setupTimerWith(SECOND / 2, callAtEveryHalfSecond);
-  setupTimerWith(SECOND / 4, callAtEveryHalfHalfSecond);
-  setupTimerWith(DEBUG_UPDATE, updateValsForDebug);
-}
 
 static int *wValues = NULL;
 static int wSize = 0;
@@ -40,14 +28,26 @@ void executeByWatchdog(int *values, int size) {
   wSize = size;
 }
 
+void setupTimers(void) {
+  watchdog_feed();
+  timerSecond.begin(callAtEverySecond, SECOND);
+  watchdog_feed();
+  timerHalfSecond.begin(callAtEveryHalfSecond, SECOND / 2);
+  watchdog_feed();
+  timerQuarterSecond.begin(callAtEveryHalfHalfSecond, SECOND / 4);
+  watchdog_feed();
+  timerDebug.begin(updateValsForDebug, DEBUG_UPDATE);
+}
+
 void setup_a(void) {
 
   debugInit();
 
-  bool rebooted = setupWatchdog(executeByWatchdog, WATCHDOG_TIME);
+  bool rebooted = hal_watchdog_caused_reboot();
   if(!rebooted) {
     statusVariable0 = statusVariable1 = 0;
   }
+  setupWatchdog(executeByWatchdog, WATCHDOG_TIME);
 
   initSPI();
   initI2C();
@@ -57,16 +57,16 @@ void setup_a(void) {
 
   #ifdef DEBUG_SCREEN
   debugFunc();
-  #else  
+  #else
 
   #endif
 
   alertsStartSecond = getSeconds() + SERIOUS_ALERTS_DELAY_TIME;
 
-  callAtEverySecond(NULL);
-  callAtEveryHalfSecond(NULL);
-  callAtEveryHalfHalfSecond(NULL);
-  updateValsForDebug(NULL);
+  callAtEverySecond();
+  callAtEveryHalfSecond();
+  callAtEveryHalfHalfSecond();
+  updateValsForDebug();
 
   watchdog_feed();
   setupTimers();
@@ -74,28 +74,27 @@ void setup_a(void) {
   benchOperation.init();
 
   //just a demo
-  MyDisplay *display = get_display();
-  display->setFont();      // Use default (built-in) font
-  display->setTextSize(2); // and 2X size for chart label
-  
-  display->setCursor((display->width() - 144) / 2, 0);
-  display->setTextColor(0x0210);
-  display->print(F("Widget Sales")); // F("string") is in program memory, not RAM
+  hal_display_set_font(HAL_FONT_DEFAULT);
+  hal_display_set_text_size(2);
+
+  hal_display_set_cursor((hal_display_get_width() - 144) / 2, 0);
+  hal_display_set_text_color(0x0210);
+  hal_display_print("Widget Sales");
 
   float thickness = 2.0;
   int charWidth = 16;
   String str;
   int w, x;
-  
-  str = "12:34.56+2-1 102^ 99%"; 
-  w = display->get7SegStringWidth(str, charWidth, thickness);
-  x = (SCREEN_WIDTH - w) / 2;
-  display->draw7SegString(str, x, 50, charWidth, 24, thickness, ST77XX_WHITE);
 
-  str = "1ABCDEF2"; 
-  w = display->get7SegStringWidth(str, charWidth, thickness);
+  str = "12:34.56+2-1 102^ 99%";
+  w = get7SegStringWidth(str, charWidth, thickness);
   x = (SCREEN_WIDTH - w) / 2;
-  display->draw7SegString(str, x, 80, charWidth, 24, thickness, ST77XX_WHITE);
+  draw7SegString(str, x, 50, charWidth, 24, thickness, ST77XX_WHITE);
+
+  str = "1ABCDEF2";
+  w = get7SegStringWidth(str, charWidth, thickness);
+  x = (SCREEN_WIDTH - w) / 2;
+  draw7SegString(str, x, 80, charWidth, 24, thickness, ST77XX_WHITE);
 
 
   setStartedCore0();
@@ -108,25 +107,28 @@ void loop_a(void) {
 
   if(!isEnvironmentStarted()) {
     statusVariable0 = -1;
-    m_delay(CORE_OPERATION_DELAY);  
-    tight_loop_contents();
+    m_delay(CORE_OPERATION_DELAY);
+    hal_idle();
     return;
   }
 
   statusVariable0 = 1;
 
-  generalTimer.tick();
+  timerSecond.tick();
+  timerHalfSecond.tick();
+  timerQuarterSecond.tick();
+  timerDebug.tick();
+
   if(lastThreadSeconds < getSeconds()) {
     lastThreadSeconds = getSeconds() + THREAD_CONTROL_SECONDS;
-
-    deb("thread is alive, active tasks: %d", generalTimer.size());
+    deb("thread is alive");
   }
   statusVariable0 = 2;
 
   benchOperation.showDebug();
 
-  m_delay(CORE_OPERATION_DELAY);  
-  tight_loop_contents();
+  m_delay(CORE_OPERATION_DELAY);
+  hal_idle();
 }
 
 static bool alertBlink = false, seriousAlertBlink = false;
@@ -138,27 +140,21 @@ bool seriousAlertSwitch(void) {
 }
 
 //timer functions
-bool callAtEverySecond(void *arg) {
+static void callAtEverySecond(void) {
   alertBlink = !alertBlink;
 
-  digitalWrite(LED_BUILTIN, alertBlink);
+  hal_gpio_write(LED_BUILTIN, alertBlink);
 
 #if SYSTEM_TEMP
-  deb("System temperature: %f", analogReadTemp());
+  deb("System temperature: %f", hal_read_chip_temp());
 #endif
-
-  return true;
 }
 
-bool callAtEveryHalfSecond(void *arg) {
+static void callAtEveryHalfSecond(void) {
   seriousAlertBlink = !seriousAlertBlink;
-
-  return true;
 }
 
-bool callAtEveryHalfHalfSecond(void *arg) {
-
-  return true;
+static void callAtEveryHalfHalfSecond(void) {
 }
 
 void setup_b(void) {
@@ -170,21 +166,18 @@ void loop_b(void) {
 
   if(!isEnvironmentStarted()) {
     statusVariable1 = -1;
-    m_delay(CORE_OPERATION_DELAY);  
-    tight_loop_contents();
+    m_delay(CORE_OPERATION_DELAY);
+    hal_idle();
     return;
   }
   statusVariable1 = 1;
 
   benchOperation.process();
 
-  m_delay(CORE_OPERATION_DELAY);  
-  tight_loop_contents();
+  m_delay(CORE_OPERATION_DELAY);
+  hal_idle();
 }
 
-bool updateValsForDebug(void *arg) {
-
-  deb("alive tasks: %d", generalTimer.size());
-
-  return true;
+static void updateValsForDebug(void) {
+  deb("alive");
 }

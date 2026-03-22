@@ -2,7 +2,7 @@
 #define T_VP37
 
 #include <tools.h>
-#include <arduino-timer.h>
+#include <SmartTimers.h>
 #include <pidController.h>
 #include <canDefinitions.h>
 #include <multicoreWatchdog.h>
@@ -21,7 +21,8 @@ private:
   void measureVoltage(void);
 
   PIDController adjustController;
-  Timer<> vp37MainTimer;
+  SmartTimers timerFuelTemp;
+  SmartTimers timerVoltage;
 
   bool vp37Initialized;
   bool calibrationDone;
