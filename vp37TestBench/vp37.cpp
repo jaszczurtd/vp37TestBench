@@ -41,7 +41,7 @@ int VP37Pump::getAdjustometerStable(void) {
 }
 
 void VP37Pump::applyDelay(void) {
-  m_delay(VP37_ADJUST_TIMER);
+  hal_delay_ms(VP37_ADJUST_TIMER);
   watchdog_feed();
 }
 

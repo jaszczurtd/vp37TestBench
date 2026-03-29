@@ -87,14 +87,14 @@ void setup_a(void) {
   int w, x;
 
   str = "12:34.56+2-1 102^ 99%";
-  w = get7SegStringWidth(str, charWidth, thickness);
+  w = get7SegStringWidth(str.c_str(), charWidth, thickness);
   x = (SCREEN_WIDTH - w) / 2;
-  draw7SegString(str, x, 50, charWidth, 24, thickness, ST77XX_WHITE);
+  draw7SegString(str.c_str(), x, 50, charWidth, 24, thickness, ST77XX_WHITE);
 
   str = "1ABCDEF2";
-  w = get7SegStringWidth(str, charWidth, thickness);
+  w = get7SegStringWidth(str.c_str(), charWidth, thickness);
   x = (SCREEN_WIDTH - w) / 2;
-  draw7SegString(str, x, 80, charWidth, 24, thickness, ST77XX_WHITE);
+  draw7SegString(str.c_str(), x, 80, charWidth, 24, thickness, ST77XX_WHITE);
 
 
   setStartedCore0();
@@ -107,7 +107,7 @@ void loop_a(void) {
 
   if(!isEnvironmentStarted()) {
     statusVariable0 = -1;
-    m_delay(CORE_OPERATION_DELAY);
+    hal_delay_ms(CORE_OPERATION_DELAY);
     hal_idle();
     return;
   }
@@ -127,7 +127,7 @@ void loop_a(void) {
 
   benchOperation.showDebug();
 
-  m_delay(CORE_OPERATION_DELAY);
+  hal_delay_ms(CORE_OPERATION_DELAY);
   hal_idle();
 }
 
@@ -166,7 +166,7 @@ void loop_b(void) {
 
   if(!isEnvironmentStarted()) {
     statusVariable1 = -1;
-    m_delay(CORE_OPERATION_DELAY);
+    hal_delay_ms(CORE_OPERATION_DELAY);
     hal_idle();
     return;
   }
@@ -174,7 +174,7 @@ void loop_b(void) {
 
   benchOperation.process();
 
-  m_delay(CORE_OPERATION_DELAY);
+  hal_delay_ms(CORE_OPERATION_DELAY);
   hal_idle();
 }
 
