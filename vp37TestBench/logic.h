@@ -4,8 +4,6 @@
 
 #include <tools.h>
 #include <canDefinitions.h>
-#include <SmartTimers.h>
-#include <multicoreWatchdog.h>
 
 #include "config.h"
 

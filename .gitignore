@@ -101,4 +101,5 @@ src/Clocks/.build/
 src/ECU/.build/
 src/OilAndSpeed/.build/
 .build/
+.codex
 

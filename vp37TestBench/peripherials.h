@@ -1,12 +1,11 @@
 #ifndef C_PERIPHERIALS
 #define C_PERIPHERIALS
 
+#include <libConfig.h>
 #include <tools.h>
 #include <hal/hal_display.h>
 
-#include <libConfig.h>
 #include <canDefinitions.h>
-#include <draw7Segment.h>
 
 #include "config.h"
 #include "hardwareConfig.h"
