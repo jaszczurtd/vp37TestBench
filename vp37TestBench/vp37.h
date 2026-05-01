@@ -2,7 +2,6 @@
 #define T_VP37
 
 #include <tools.h>
-#include <canDefinitions.h>
 
 #include "config.h"
 #include "hardwareConfig.h"

@@ -301,6 +301,90 @@
                 "showReuseMessage": false
             },
             "problemMatcher": []
+        },
+        {
+            "label": "Project: Build",
+            "detail": "Legacy alias for existing user keybindings",
+            "dependsOn": "Arduino: Build",
+            "hide": true,
+            "problemMatcher": []
+        },
+        {
+            "label": "Project: Upload",
+            "detail": "Legacy alias for existing user keybindings",
+            "dependsOn": "Arduino: Upload",
+            "hide": true,
+            "problemMatcher": []
+        },
+        {
+            "label": "Project: Monitor (persistent)",
+            "detail": "Legacy alias for existing user keybindings",
+            "dependsOn": "Arduino: Monitor (persistent)",
+            "hide": true,
+            "problemMatcher": []
+        },
+        {
+            "label": "Project: Upload (UF2 / BOOTSEL)",
+            "detail": "Legacy alias for existing user keybindings",
+            "dependsOn": "Arduino: Upload (UF2 / BOOTSEL)",
+            "hide": true,
+            "problemMatcher": []
+        },
+        {
+            "label": "Project: Monitor (Debug Probe)",
+            "detail": "Legacy alias for existing user keybindings",
+            "dependsOn": "Arduino: Monitor (Debug Probe)",
+            "hide": true,
+            "problemMatcher": []
+        },
+        {
+            "label": "Project: Refresh IntelliSense",
+            "detail": "Legacy alias for existing user keybindings",
+            "dependsOn": "Arduino: Refresh IntelliSense",
+            "hide": true,
+            "problemMatcher": []
+        },
+        {
+            "label": "Project: Clean",
+            "detail": "Legacy alias for existing user keybindings",
+            "dependsOn": "Arduino: Clean",
+            "hide": true,
+            "problemMatcher": []
+        },
+        {
+            "label": "Project: List ports",
+            "detail": "Legacy alias for existing user keybindings",
+            "dependsOn": "Arduino: List ports",
+            "hide": true,
+            "problemMatcher": []
+        },
+        {
+            "label": "Project: Change port",
+            "detail": "Legacy alias for existing user keybindings",
+            "dependsOn": "Arduino: Change port",
+            "hide": true,
+            "problemMatcher": []
+        },
+        {
+            "label": "Project: Install library",
+            "detail": "Legacy alias for existing user keybindings",
+            "dependsOn": "Arduino: Install library",
+            "hide": true,
+            "problemMatcher": []
+        },
+        {
+            "label": "Project: Select board (GUI)",
+            "detail": "Legacy alias for existing user keybindings",
+            "dependsOn": "Arduino: Select board (GUI)",
+            "hide": true,
+            "problemMatcher": []
+        },
+        {
+            "label": "Project: Select board (interactive)",
+            "detail": "Legacy alias for existing user keybindings",
+            "dependsOn": "Arduino: Select board (interactive)",
+            "hide": true,
+            "problemMatcher": []
         }
     ]
 }

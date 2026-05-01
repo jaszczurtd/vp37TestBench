@@ -3,7 +3,6 @@
 #define C_LOGIC
 
 #include <tools.h>
-#include <canDefinitions.h>
 
 #include "config.h"
 

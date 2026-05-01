@@ -5,10 +5,9 @@
 #include <tools.h>
 #include <hal/hal_display.h>
 
-#include <canDefinitions.h>
-
 #include "config.h"
 #include "hardwareConfig.h"
+#include "canDefinitions.h"
 
 #define SCREEN_WIDTH 480
 #define SCREEN_HEIGHT 320
